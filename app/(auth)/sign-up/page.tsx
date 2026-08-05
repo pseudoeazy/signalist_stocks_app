@@ -3,31 +3,19 @@
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { toast } from "@/components/ui/toast";
+
 import {
   INVESTMENT_GOALS,
   PREFERRED_INDUSTRIES,
   RISK_TOLERANCE_OPTIONS,
 } from "@/lib/constants";
-
-const signupSchema = z.object({
-  fullName: z.string().min(2, "Full legal name is required"),
-  email: z.string().email("Please enter a valid financial network email"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-  investmentGoal: z
-    .string()
-    .min(1, "Please choose an overarching portfolio goal"),
-  riskTolerance: z
-    .string()
-    .min(1, "Please rate your volatility tolerance threshold"),
-  preferredIndustry: z
-    .string()
-    .min(1, "Please select a target market sector focus"),
-});
-
-type SignupFormData = z.infer<typeof signupSchema>;
+import { SignupFormData, signupSchema } from "@/lib/validation";
+import { signUpWithEmail } from "@/lib/actions/auth.actions";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -42,8 +30,24 @@ export default function SignupPage() {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    // Implement database ingestion and routing profile assignment here
-    console.log("Provisioning Trader Strategy Profile:", data);
+    try {
+      // Implement database ingestion and routing profile assignment here
+      console.log("Provisioning Trader Strategy Profile:", data);
+
+      const result = await signUpWithEmail(data);
+      if (result.success) {
+        router.push("/");
+      }
+    } catch (error) {
+      toast.add({
+        type: "error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create an account",
+        priority: "high",
+      });
+    }
   };
 
   return (

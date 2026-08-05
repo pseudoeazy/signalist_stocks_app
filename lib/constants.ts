@@ -3,8 +3,13 @@ export const NAV_ITEMS = [
   { href: "/search", label: "Search" },
   // { href: '/watchlist', label: 'Watchlist' },
 ];
-
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+};
 // Sign-up form select options
+
 export const INVESTMENT_GOALS = [
   { value: "Growth", label: "Growth" },
   { value: "Income", label: "Income" },
