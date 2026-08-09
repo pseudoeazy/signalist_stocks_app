@@ -3,16 +3,13 @@
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid financial network email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+import { signInWithEmail } from "@/lib/actions/auth.actions";
+import { toast } from "@/components/ui/toast";
+import { LoginFormData, loginSchema } from "@/lib/validation";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -22,8 +19,21 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    // Implement secure authentication logic here
-    console.log("Authenticated User Session:", data);
+    try {
+      console.log("Authenticated User Session:", data);
+
+      const result = await signInWithEmail(data);
+      if (result.success) {
+        router.push("/");
+      }
+    } catch (error) {
+      toast.add({
+        type: "error",
+        description:
+          error instanceof Error ? error.message : "Failed to sign in",
+        priority: "high",
+      });
+    }
   };
 
   return (
